@@ -11,10 +11,18 @@ if args[1] == 'none':
     print('sample: `make sample SAMPLE_FILE=nansu` -> create sample nansu.wav')
     exit(-1)
 
-print(args[1] + 'mfcc start')
+output_dir = ''
+if args[2] == '--training-data':
+    output_dir = 'training'
+else:
+    output_dir = 'sample'
+
+print(args[1] + 'mfcc start. this make '+ output_dir + ' data')
 
 x, fs = sf.read('./media/' + args[1] + '.wav')
-mfccs = librosa.feature.mfcc(istft(x), sr=fs)
+if (args[2] == '--training-data'):
+    x = istft(x)
+mfccs = librosa.feature.mfcc(x, sr=fs)
 
 # 具体的に何をしているかはこのあたりが詳しいです
 # https://qiita.com/martin-d28jp-love/items/34161f2facb80edd999f
@@ -24,6 +32,6 @@ mfccs = librosa.feature.mfcc(istft(x), sr=fs)
 # DCT したあとで取得する係数の次元(デフォルト20), サンプリングレートxオーディオファイルの長さ（= 全フレーム数）/ STFTスライドサイズ(デフォルト512)
 print(mfccs.shape)
 
-with open('sample/' + args[1] +'.csv', 'w') as f:
+with open(output_dir + '/' + args[1] + '.csv', 'w') as f:
     writer = csv.writer(f)
     writer.writerows(mfccs)
